@@ -165,6 +165,7 @@ const SHARED_RIDE_KEY = "saferide-demo-ride-request";
 const SCANDLING_CENTER_POINT = { lat: 42.8585291, lon: -76.9848679 };
 const MAX_RIDE_RADIUS_MILES = 5;
 const SCHOOL_VAN_CAPACITY = 10;
+const DEV_LOGIN_DISABLED = true;
 const DEMO_PICKUP_ADDRESS = "Lake Drum Brewery, 16 East Castle Street, Geneva, NY";
 const DEMO_DROPOFF_ADDRESS = "Odell's Pond Road, Geneva, NY";
 const DEMO_DROPOFF_POINT = ODELLS_POND_ROAD_DEMO_POINT;
@@ -763,19 +764,20 @@ function SafeRideMVP() {
                 theme={theme}
                 accountType={accountType}
                 setAccountType={setAccountType}
+                loginDisabled={DEV_LOGIN_DISABLED}
 	                loginError={loginError}
 	                onBack={() => setStep("school")}
 	                onLogin={() => {
-	                  const cleanUsername = netId.trim();
+	                  const cleanUsername = netId.trim() || (accountType === "driver" ? "driver1" : "student1");
 	                  const passwordFreeDemo = isPasswordFreeDemoLogin(accountType, cleanUsername);
 	                  const matchedProfile = readProfiles().find(
 	                    (candidate) =>
 	                      candidate.role === accountType &&
 	                      candidate.username.toLowerCase() === cleanUsername.toLowerCase() &&
-	                      (passwordFreeDemo || candidate.password === password)
+	                      (DEV_LOGIN_DISABLED || passwordFreeDemo || candidate.password === password)
 	                  );
 	
-	                  if (!cleanUsername || (!passwordFreeDemo && !password)) {
+	                  if (!DEV_LOGIN_DISABLED && (!cleanUsername || (!passwordFreeDemo && !password))) {
 	                    setLoginError(passwordFreeDemo ? "Enter a username." : "Enter a username and password.");
 	                    return;
 	                  }
@@ -785,7 +787,7 @@ function SafeRideMVP() {
 	                    nextProfile = {
 	                      role: accountType,
 	                      username: cleanUsername,
-	                      password: passwordFreeDemo ? "" : password,
+	                      password: DEV_LOGIN_DISABLED || passwordFreeDemo ? "" : password,
 	                      name: displayNameFromUsername(cleanUsername),
 	                    };
                     upsertProfile(nextProfile);
@@ -806,7 +808,7 @@ function SafeRideMVP() {
 	                  if (isDemoStudentProfile(nextProfile)) {
 	                    window.__lastSafeRideStudentLocation = DEMO_STUDENT_LOCATION;
 	                  }
-	                  if (passwordFreeDemo) setPassword("");
+	                  if (DEV_LOGIN_DISABLED || passwordFreeDemo) setPassword("");
 	                  if (isDemoStudentProfile(nextProfile)) {
 	                    writeSharedRide({
 	                      status: "idle",
@@ -939,6 +941,7 @@ function LoginOnlyScreen({
   theme,
   accountType,
   setAccountType,
+  loginDisabled,
   loginError,
   onBack,
   onLogin,
@@ -965,7 +968,9 @@ function LoginOnlyScreen({
         <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Password" />
         {loginError && <div className="login-error">{loginError}</div>}
         <div className="demo-credentials">
-          Demo accounts demostudent and demodriver do not need a password. Other profiles still require one.
+          {loginDisabled
+            ? "Development mode: fields can be left blank for now."
+            : "Demo accounts demostudent and demodriver do not need a password. Other profiles still require one."}
         </div>
       </div>
 
