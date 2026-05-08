@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SafeRide MVP</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      window.addEventListener("error", function (event) {
+        var errorBox = document.createElement("pre");
+        errorBox.style.cssText = "position:fixed;inset:16px;z-index:99999;padding:16px;overflow:auto;background:#111;color:#fecaca;border:1px solid #ef4444;border-radius:12px;font:13px monospace;white-space:pre-wrap;";
+        errorBox.textContent = "SafeRide error:\\n" + (event.error && event.error.stack ? event.error.stack : event.message);
+        document.body.appendChild(errorBox);
+      });
+      window.addEventListener("unhandledrejection", function (event) {
+        var errorBox = document.createElement("pre");
+        errorBox.style.cssText = "position:fixed;inset:16px;z-index:99999;padding:16px;overflow:auto;background:#111;color:#fecaca;border:1px solid #ef4444;border-radius:12px;font:13px monospace;white-space:pre-wrap;";
+        errorBox.textContent = "SafeRide async error:\\n" + (event.reason && event.reason.stack ? event.reason.stack : event.reason);
+        document.body.appendChild(errorBox);
+      });
+    </script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="text/babel" data-presets="env,react" src="/src/App.jsx?v=student-in-ride-status"></script>
+  </body>
+</html>
